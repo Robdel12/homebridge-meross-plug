@@ -1,6 +1,6 @@
 {
   "name": "homebridge-meross-plug",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Homebridge plugin for the meross MSS110 plug",
   "main": "src/index.js",
   "author": "Robert DeLuca",
