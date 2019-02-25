@@ -96,14 +96,14 @@ class MerossPlug {
            }
           },
           "header": {
-            "messageId": "cf6d52504518d11cbbf1b1ab16ffb97b",
+            "messageId": "c3222c7d2b9163fe2968f06c45338a9f",
             "method": "SET",
             "from": `${this.config.deviceUrl}\/config`,
             "namespace": "Appliance.Control.ToggleX",
-            "timestamp": 1551048883,
+            "timestamp": 1543987687,
             // TODO probably can recycle the 'sign' from the response of this request
             // in case this gets stale and no longer works. No idea what it does.
-            "sign": "03b9e64ffdd474d409f2c1732d6fdd34",
+            "sign": "9cb8004faf1ea39e94256227c9fb0b19",
             "payloadVersion": 1
           }
         }
@@ -152,14 +152,14 @@ async getOnCharacteristicHandler (callback) {
             body: {
               "payload": {},
               "header": {
-                "messageId": "0231e861c8a9f784e5879bb23a2eee88",
+                "messageId": "c3222c7d2b9163fe2968f06c45338a9f",
                 "method": "GET",
                 "from": `${this.config.deviceUrl}\/config`,
                 "namespace": "Appliance.System.All",
-                "timestamp": 1551048821,
+                "timestamp": 1543987687,
                 // TODO probably can recycle the 'sign' from the response of this request
                 // in case this gets stale and no longer works. No idea what it does.
-                "sign": "ff6abfd3d824256590217bef5581f793",
+                "sign": "9cb8004faf1ea39e94256227c9fb0b19",
                 "payloadVersion": 1
               }
             }
