@@ -17,6 +17,7 @@ function doRequest(options) {
   });
 }
 
+
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
@@ -81,9 +82,9 @@ class MerossPlug {
         url: `${this.config.deviceUrl}/config`,
         headers: {
           "Content-Type": "application/json",
-          "AppVersion": "1.4.0",
+          "AppVersion": "1.4.",
           "Authorization": `${this.config.authToken}`,
-          "vendor":"meross"
+          "vender":"meross"
         },
         json: true,
         strictSSL: false,
@@ -95,14 +96,14 @@ class MerossPlug {
            }
           },
           "header": {
-            "messageId": "c3222c7d2b9163fe2968f06c45338a9f",
+            "messageId": "cf6d52504518d11cbbf1b1ab16ffb97b",
             "method": "SET",
             "from": `${this.config.deviceUrl}\/config`,
             "namespace": "Appliance.Control.ToggleX",
-            "timestamp": 1543987687,
+            "timestamp": 1551048883,
             // TODO probably can recycle the 'sign' from the response of this request
             // in case this gets stale and no longer works. No idea what it does.
-            "sign": "9cb8004faf1ea39e94256227c9fb0b19",
+            "sign": "03b9e64ffdd474d409f2c1732d6fdd34",
             "payloadVersion": 1
           }
         }
@@ -112,8 +113,10 @@ class MerossPlug {
     }
 
     if (response) {
+	this.log('erfolg', response)
       this.isOn = value
     } else {
+	this.log('misserfolg')
       this.isOn = false
     }
 
@@ -127,16 +130,54 @@ class MerossPlug {
     callback(null)
   }
 
-  getOnCharacteristicHandler (callback) {
+async getOnCharacteristicHandler (callback) {
     /*
      * this is called when HomeKit wants to retrieve the current state of the characteristic as defined in our getServices() function
      * it's called each time you open the Home app or when you open control center
      */
 
-    // TODO: actually fetch the status instead of mutating a variable...
-    /* Log to the console the value whenever this function is called */
-    this.log(`calling getOnCharacteristicHandler`, this.isOn)
+    let response;
+        try {
+          response = await doRequest({
+            method: 'POST',
+            url: `${this.config.deviceUrl}/config`,
+            headers: {
+              "Content-Type": "application/json",
+              "AppVersion": "1.4.0",
+              "Authorization": `${this.config.authToken}`,
+              "vender":"meross"
+            },
+            json: true,
+            strictSSL: false,
+            body: {
+              "payload": {},
+              "header": {
+                "messageId": "0231e861c8a9f784e5879bb23a2eee88",
+                "method": "GET",
+                "from": `${this.config.deviceUrl}\/config`,
+                "namespace": "Appliance.System.All",
+                "timestamp": 1551048821,
+                // TODO probably can recycle the 'sign' from the response of this request
+                // in case this gets stale and no longer works. No idea what it does.
+                "sign": "ff6abfd3d824256590217bef5581f793",
+                "payloadVersion": 1
+              }
+            }
+          });
+        } catch (e) {
+          this.log('Failed to POST to the Meross Plug:', e);
+        }
 
+
+    if (response) {
+	this.log('lucky, status:', response.payload.all.digest.togglex[`${this.config.channel}`].onoff)
+      this.isOn = response.payload.all.digest.togglex[`${this.config.channel}`].onoff
+    } else {
+	this.log('unlucky')
+      this.isOn = false
+    }
+
+        this.log(`calling getOnCharacteristicHandler`, this.isOn)
     /*
      * The callback function should be called to return the value
      * The first argument in the function should be null unless and error occured
