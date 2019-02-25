@@ -91,13 +91,13 @@ class MerossPlug {
           "payload": {
             "togglex": {
               "onoff": value ? 1 : 0,
-              "channel": 0
-            }
+              "channel": `${this.config.channel}`  //!new from Config!
+           }
           },
           "header": {
             "messageId": "c3222c7d2b9163fe2968f06c45338a9f",
             "method": "SET",
-            "from": `http:\/\/${this.config.deviceUrl}\/config`,
+            "from": `${this.config.deviceUrl}\/config`,
             "namespace": "Appliance.Control.ToggleX",
             "timestamp": 1543987687,
             // TODO probably can recycle the 'sign' from the response of this request
