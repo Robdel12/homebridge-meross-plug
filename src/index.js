@@ -75,40 +75,85 @@ class MerossPlug {
     this.log(this.config, `${this.config.deviceUrl}/config`)
     let response;
 
-    try {
-      response = await doRequest({
-        method: 'POST',
-        url: `${this.config.deviceUrl}/config`,
-        headers: {
-          "Content-Type": "application/json",
-          "AppVersion": "1.4.0",
-          "Authorization": `${this.config.authToken}`,
-          "vendor":"meross"
-        },
-        json: true,
-        strictSSL: false,
-        body: {
-          "payload": {
-            "togglex": {
-              "onoff": value ? 1 : 0,
-              "channel": 0
-            }
+    /* 
+     * This assumes future versions of MSS110 plugs will adopt the 2.x.x + payload. Easy enough to adapt if neccessary. 
+     * case 1 - Hardware version 1.x.x
+     * default - Hardware version 2.x.x +
+     */
+    switch (this.config.hardwareVersion) {
+      case 1:
+      try {
+        response = await doRequest({
+          method: 'POST',
+          url: `${this.config.deviceUrl}/config`,
+          headers: {
+            "Content-Type": "application/json",
+            "AppVersion": "1.4.0",
+            "Authorization": `${this.config.authToken}`,
+            "vender":"meross"
           },
-          "header": {
-            "messageId": "c3222c7d2b9163fe2968f06c45338a9f",
-            "method": "SET",
-            "from": `http:\/\/${this.config.deviceUrl}\/config`,
-            "namespace": "Appliance.Control.ToggleX",
-            "timestamp": 1543987687,
-            // TODO probably can recycle the 'sign' from the response of this request
-            // in case this gets stale and no longer works. No idea what it does.
-            "sign": "9cb8004faf1ea39e94256227c9fb0b19",
-            "payloadVersion": 1
+          json: true,
+          strictSSL: false,
+          body: {
+            "payload": {
+              "toggle": {
+                "onoff": value ? 1 : 0
+              }
+            },
+            "header": {
+              "messageId": "ea3a20d62868f6c309b6e1b8aeab1ecc",
+              "method": "SET",
+              "from": `${this.config.deviceUrl}/config`,
+              "namespace": "Appliance.Control.Toggle",
+              "timestamp": 1550640048,
+              // TODO probably can recycle the 'sign' from the response of this request
+              // in case this gets stale and no longer works. No idea what it does.
+              "sign": "9430a84459d15a522a9cb91c93f63b45",
+              "payloadVersion": 1
+            }
           }
-        }
-      });
-    } catch (e) {
-      this.log('Failed to POST to the Meross Plug:', e);
+        });
+      } catch (e) {
+        this.log('Failed to POST to the Meross Plug:', e);
+      }
+      break;
+      default:
+      try {
+        response = await doRequest({
+          method: 'POST',
+          url: `${this.config.deviceUrl}/config`,
+          headers: {
+            "Content-Type": "application/json",
+            "AppVersion": "1.4.0",
+            "Authorization": `${this.config.authToken}`,
+            "vender":"meross"
+          },
+          json: true,
+          strictSSL: false,
+          body: {
+            "payload": {
+              "togglex": {
+                "onoff": value ? 1 : 0,
+                "channel" : 0
+              }
+            },
+            "header": {
+              "messageId": "ea3a20d62868f6c309b6e1b8aeab1ecc",
+              "method": "SET",
+              "from": `${this.config.deviceUrl}/config`,
+              "namespace": "Appliance.Control.ToggleX",
+              "timestamp": 1550640048,
+              // TODO probably can recycle the 'sign' from the response of this request
+              // in case this gets stale and no longer works. No idea what it does.
+              "sign": "9430a84459d15a522a9cb91c93f63b45",
+              "payloadVersion": 1
+            }
+          }
+        });
+      } catch (e) {
+        this.log('Failed to POST to the Meross Plug:', e);
+      }
+      break;
     }
 
     if (response) {
