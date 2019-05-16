@@ -18,13 +18,13 @@ meross plugin:
 - `npm i -g homebridge-meross-plug` (You may need `sudo` depending on
   your homebridge setup)
 - Edit your `config.json` to include the plug `name`, `deviceURL`, `hardwareVersion`,
-  & `authToken`.
+  `channel`, & `authToken`.
 
 If you're setting this plug up fresh, make sure you go through the
 typical meross app for initial setup. You will need to know what the
 plugs IP address is on your network. You will also have to get the
-auth token that the meross mobile app uses in its HTTP request headers 
-as well as the first number of the hardware version (ex. **1**.0.0). 
+auth token that the meross mobile app uses in its HTTP request headers, 
+the first number of the hardware version (ex. **1**.0.0), & the channel that plug is running on. 
 I used Charles proxy and proxied to my iPhone to sniff the network 
 requests from the app.
 
@@ -38,6 +38,7 @@ Yep, that's probably fragile and all kinds of bad. #YOLO
       "name": "Bedroom lamp",
       "deviceUrl": "http://192.168.11.11",
       "hardwareVersion": 1,
+      "channel": 0,
       "authToken": "Basic [token you sniffed yourself]"
     },
     {
@@ -45,6 +46,7 @@ Yep, that's probably fragile and all kinds of bad. #YOLO
       "name": "Entertainment center lights",
       "deviceUrl": "http://192.168.11.12",
       "hardwareVersion": 2,
+      "channel": 0,
       "authToken": "Basic [token you sniffed yourself]"
     }
   ]
