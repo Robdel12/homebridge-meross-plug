@@ -74,49 +74,87 @@ class MerossPlug {
     this.log(this.config, `${this.config.deviceUrl}/config`);
     let response;
 
-    try {
-      response = await doRequest({
-        json: true,
-        method: "POST",
-        strictSSL: false,
-        url: `${this.config.deviceUrl}/config`,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: {
-          payload: {
-            togglex: {
-              onoff: value ? 1 : 0,
-              channel: `${this.config.channel}`
+    /*
+     * This assumes future versions of MSS110 plugs will adopt the 2.x.x + payload. Easy enough to adapt if neccessary.
+     * case 1 - Hardware version 1.x.x
+     * default - Hardware version 2.x.x +
+     */
+
+    switch (this.config.hardwareVersion) {
+      case 1:
+        try {
+          response = await doRequest({
+            json: true,
+            method: "POST",
+            strictSSL: false,
+            url: `${this.config.deviceUrl}/config`,
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: {
+              payload: {
+                toggle: {
+                  onoff: value ? 1 : 0
+                }
+              },
+              header: {
+                messageId: `${this.config.messageId}`,
+                method: "SET",
+                from: `${this.config.deviceUrl}\/config`,
+                namespace: "Appliance.Control.Toggle",
+                timestamp: this.config.timestamp,
+                sign: `${this.config.sign}`,
+                payloadVersion: 1
+              }
             }
-          },
-          header: {
-            messageId: "c3222c7d2b9163fe2968f06c45338a9f",
-            method: "SET",
-            from: `${this.config.deviceUrl}\/config`,
-            namespace: "Appliance.Control.ToggleX",
-            timestamp: 1543987687,
-            // TODO probably can recycle the 'sign' from the response of this request
-            // in case this gets stale and no longer works. No idea what it does.
-            sign: "9cb8004faf1ea39e94256227c9fb0b19",
-            payloadVersion: 1
-          }
+          });
+        } catch (e) {
+          this.log("Failed to POST to the Meross Plug: ", e);
         }
-      });
-    } catch (e) {
-      this.log("Failed to POST to the Meross Plug:", e);
+        break;
+      default:
+        try {
+          response = await doRequest({
+            json: true,
+            method: "POST",
+            strictSSL: false,
+            url: `${this.config.deviceUrl}/config`,
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: {
+              payload: {
+                togglex: {
+                  onoff: value ? 1 : 0,
+                  channel: `${this.config.channel}`
+                }
+              },
+              header: {
+                messageId: `${this.config.messageId}`,
+                method: "SET",
+                from: `${this.config.deviceUrl}\/config`,
+                namespace: "Appliance.Control.ToggleX",
+                timestamp: this.config.timestamp,
+                sign: `${this.config.sign}`,
+                payloadVersion: 1
+              }
+            }
+          });
+        } catch (e) {
+          this.log("Failed to POST to the Meross Plug:", e);
+        }
     }
 
     if (response) {
       this.isOn = value;
-      this.log("Set succeeded", response);
+      this.log("Set succeeded:", response);
     } else {
       this.isOn = false;
-      this.log("Set failed", this.isOn);
+      this.log("Set failed:", this.isOn);
     }
 
     /* Log to the console the value whenever this function is called */
-    this.log(`calling setOnCharacteristicHandler`, value);
+    this.log("calling setOnCharacteristicHandler:", value);
 
     /*
      * The callback function should be called to return the value
@@ -132,6 +170,7 @@ class MerossPlug {
      */
 
     let response;
+
     try {
       response = await doRequest({
         json: true,
@@ -144,14 +183,12 @@ class MerossPlug {
         body: {
           payload: {},
           header: {
-            messageId: "c3222c7d2b9163fe2968f06c45338a9f",
+            messageId: `${this.config.messageId}`,
             method: "GET",
             from: `${this.config.deviceUrl}/config`,
             namespace: "Appliance.System.All",
-            timestamp: 1543987687,
-            // TODO probably can recycle the 'sign' from the response of this request
-            // in case this gets stale and no longer works. No idea what it does.
-            sign: "9cb8004faf1ea39e94256227c9fb0b19",
+            timestamp: this.config.timestamp,
+            sign: `${this.config.sign}`,
             payloadVersion: 1
           }
         }
@@ -160,18 +197,33 @@ class MerossPlug {
       this.log("Failed to POST to the Meross Plug:", e);
     }
 
-    if (response) {
-      let onOff =
-        response.payload.all.digest.togglex[`${this.config.channel}`].onoff;
+    switch (this.config.hardwareVersion) {
+      case 1:
+        if (response) {
+          let onOff = response.payload.all.control.toggle.onoff;
 
-      this.log("Successfully retrieved status: ", onOff);
-      this.isOn = onOff;
-    } else {
-      this.log("unlucky");
-      this.isOn = false;
+          this.log("Retrieved status successfully: ", onOff);
+          this.isOn = onOff;
+        } else {
+          this.log("Retrieved status unsuccessfully.");
+          this.isOn = false;
+        }
+        break;
+
+      default:
+        if (response) {
+          let onOff =
+            response.payload.all.digest.togglex[`${this.config.channel}`].onoff;
+
+          this.log("Retrieved status successfully: ", onOff);
+          this.isOn = onOff;
+        } else {
+          this.log("Retrieved status unsuccessfully.");
+          this.isOn = false;
+        }
     }
 
-    this.log(`calling getOnCharacteristicHandler`, this.isOn);
+    this.log("calling getOnCharacteristicHandler:", this.isOn);
     /*
      * The callback function should be called to return the value
      * The first argument in the function should be null unless and error occured
