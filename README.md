@@ -1,6 +1,6 @@
 # Homebridge Meross MSS110 Plug
 
-This is a probably fragile Homebridge implementation of the 
+Homebridge implementation of the 
 [Meross MSS110 mini-plug](https://www.amazon.com/meross-Occupies-Anywhere-MSS110-Assistant/dp/B074K3NFZQ) 
 with initial support for the 
 [Meross MSS425 Surge Protector](https://www.amazon.com/meross-Protector-Compatible-Assistant-Individually/dp/B07DXSJP8H).
