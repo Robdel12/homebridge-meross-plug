@@ -1,5 +1,11 @@
 # Homebridge Meross MSS110 Plug
 
+
+This project has been abandoned and all current and future development has moved [here](https://github.com/donavanbecker/homebridge-meross). 
+
+
+---
+
 Homebridge implementation of the 
 [Meross MSS110 mini-plug](https://www.amazon.com/meross-Occupies-Anywhere-MSS110-Assistant/dp/B074K3NFZQ) 
 with initial support for the 
